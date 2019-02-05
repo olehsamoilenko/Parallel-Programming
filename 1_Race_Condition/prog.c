@@ -6,7 +6,7 @@ int g_counter;
 void	*increment(void *arg)
 {
 	int i = -1;
-	while (++i < 10000)
+	while (++i < 100000)
 	{
 		g_counter++;
 		printf("\x1B[32mIncrement\x1B[0m\n");
@@ -17,7 +17,7 @@ void	*increment(void *arg)
 void	*decrement(void *arg)
 {
 	int i = -1;
-	while (++i < 10000)
+	while (++i < 100000)
 	{
 		g_counter--;
 		printf("\x1B[31mDecrement\x1B[0m\n");

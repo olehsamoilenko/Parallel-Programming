@@ -1,14 +1,14 @@
 #include <pthread.h>
 #include <stdio.h>
 
-int				g_counter;
+int		g_counter;
 pthread_mutex_t	g_mutex;
 
 void	*increment(void *arg)
 {
 	pthread_mutex_lock(&g_mutex);
 	int i = -1;
-	while (++i < 10000)
+	while (++i < 100000)
 	{
 		g_counter++;
 		printf("\x1B[32mIncrement\x1B[0m\n");
@@ -21,7 +21,7 @@ void	*decrement(void *arg)
 {
 	pthread_mutex_lock(&g_mutex);
 	int i = -1;
-	while (++i < 10000)
+	while (++i < 100000)
 	{
 		g_counter--;
 		printf("\x1B[31mDecrement\x1B[0m\n");
