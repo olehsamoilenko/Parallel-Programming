@@ -1,5 +1,5 @@
 all:
-	gcc prog.c -o communication
+	gcc prog.c -pthread -o communication
 
 clean:
 	rm communication

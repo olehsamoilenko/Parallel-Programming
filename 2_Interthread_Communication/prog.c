@@ -1,32 +1,63 @@
-#include <unistd.h> //pipe
-#include <stdlib.h> //exit
-#include <string.h> //strlen
-#include <stdio.h> //printf
-#include <sys/wait.h> //wait
+#include <pthread.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <stdio.h>
+#include <signal.h>
+#include <string.h> //strcpy
 
-#define MSG "Hello from the child"
+pthread_t		main_thread;
+pthread_t		add_thread_1;
+pthread_t		add_thread_2;
+pthread_mutex_t	mutex;
+int				counter = 0;
 
-int	main(void)
+void sig_func(int sig)
 {
-	int fd[2]; // 0-read, 1-write
-	pipe(fd);
-	pid_t pid = fork();
-	if (pid == 0)
-	{
-		//child
-		write(fd[1], MSG, strlen(MSG));
-		exit(0);
-	}
-	else
-	{	
-		//parent
-		wait(NULL);
-		char out[strlen(MSG)];
-		read(fd[0], out, strlen(MSG));
-		printf("Message from parent: '%s'\n", out);
-	}
-	return (0);
+	printf("Caught signal %d\n", sig);
+	pthread_mutex_lock(&mutex);
+	if (sig == SIGUSR1)
+		counter++;
+	else if (sig == SIGUSR2)
+		counter -= 2;
+	pthread_mutex_unlock(&mutex);
 }
 
+void add_func_1()
+{
+	signal(SIGUSR1, sig_func);
+	while (1)
+		;
+}
 
+void add_func_2()
+{
+	signal(SIGUSR2, sig_func);
+	while (1)
+		;
+}
 
+void main_func()
+{
+	while (1)
+	{
+		sleep(1);
+		pthread_kill(add_thread_1, SIGUSR1);
+		pthread_kill(add_thread_2, SIGUSR2);
+		printf("Main thread: Counter value: %d\n", counter);
+	}
+}
+
+int main()
+{
+	pthread_mutex_init(&mutex, NULL);
+
+	pthread_create(&main_thread, NULL, (void*)main_func, NULL);
+	pthread_create(&add_thread_1, NULL, (void*)add_func_1, NULL);
+	pthread_create(&add_thread_2, NULL, (void*)add_func_2, NULL);
+	
+	pthread_join(main_thread, NULL);
+	pthread_join(add_thread_1, NULL);
+	pthread_join(add_thread_2, NULL);
+
+	pthread_mutex_destroy(&mutex);
+}
