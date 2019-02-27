@@ -1,4 +1,3 @@
-// Client side C/C++ program to demonstrate Socket programming 
 #include <stdio.h> 
 #include <sys/socket.h> 
 #include <stdlib.h> 
@@ -6,41 +5,46 @@
 #include <unistd.h>
 #include <string.h> 
 #include <arpa/inet.h>
-#define PORT 8080 
+
+#define PORT 8080
+#define BUF_SIZE 1024
    
 int main(int argc, char const *argv[]) 
 { 
-    struct sockaddr_in address; 
-    int sock = 0, valread; 
-    struct sockaddr_in serv_addr; 
-    char *hello = "Hello from client"; 
-    char buffer[1024] = {0}; 
-    if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) 
-    { 
-        printf("\n Socket creation error \n"); 
-        return -1; 
-    } 
+    	int socket_id;
+    	if ((socket_id = socket(AF_INET, SOCK_STREAM, 0)) < 0) 
+    	{ 
+        	perror("socket creation error"); 
+        	exit(EXIT_FAILURE); 
+    	}
+ 
+	struct sockaddr_in serv_addr;
+    	memset(&serv_addr, '0', sizeof(serv_addr));    
+    	serv_addr.sin_family = AF_INET; 
+    	serv_addr.sin_port = htons(PORT); 
+    	// Convert IPv4 and IPv6 addresses from text to binary form 
+    	if(inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr)<=0)  
+    	{
+        	perror("address not supported"); 
+        	exit(EXIT_FAILURE); 
+    	} 
    
-    memset(&serv_addr, '0', sizeof(serv_addr)); 
-   
-    serv_addr.sin_family = AF_INET; 
-    serv_addr.sin_port = htons(PORT); 
-       
-    // Convert IPv4 and IPv6 addresses from text to binary form 
-    if(inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr)<=0)  
-    { 
-        printf("\nInvalid address/ Address not supported \n"); 
-        return -1; 
-    } 
-   
-    if (connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) 
-    { 
-        printf("\nConnection Failed \n"); 
-        return -1; 
-    } 
-    send(sock , hello , strlen(hello) , 0 ); 
-    printf("Hello message sent\n"); 
-    valread = read( sock , buffer, 1024); 
-    printf("%s\n",buffer ); 
-    return 0; 
+    	if (connect(socket_id, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) 
+    	{ 
+        	perror("connection failed"); 
+        	exit(EXIT_FAILURE);
+    	}
+	
+	char *hello = "hello from client";
+	while (1)
+	{
+		sleep(1);
+    		send(socket_id, hello, strlen(hello), 0);
+    		printf("Message sent to server\n");
+		char buffer[1024] = {0};
+    		read(socket_id, buffer, BUF_SIZE); 
+    		printf("Got from server: %s\n",buffer);
+	}
+    	
+	return (0); 
 }

@@ -1,25 +1,20 @@
 #include <pthread.h>
-#include <unistd.h>
-#include <sys/types.h>
+#include <unistd.h> //sleep
 #include <stdio.h>
 #include <signal.h>
-#include <string.h> //strcpy
 
-pthread_t		main_thread;
-pthread_t		add_thread_1;
-pthread_t		add_thread_2;
-pthread_mutex_t	mutex;
-int				counter = 0;
+pthread_t	main_thread;
+pthread_t	add_thread_1;
+pthread_t	add_thread_2;
+int		counter = 0;
 
 void sig_func(int sig)
 {
 	printf("Caught signal %d\n", sig);
-	pthread_mutex_lock(&mutex);
 	if (sig == SIGUSR1)
 		counter++;
 	else if (sig == SIGUSR2)
 		counter -= 2;
-	pthread_mutex_unlock(&mutex);
 }
 
 void add_func_1()
@@ -49,8 +44,6 @@ void main_func()
 
 int main()
 {
-	pthread_mutex_init(&mutex, NULL);
-
 	pthread_create(&main_thread, NULL, (void*)main_func, NULL);
 	pthread_create(&add_thread_1, NULL, (void*)add_func_1, NULL);
 	pthread_create(&add_thread_2, NULL, (void*)add_func_2, NULL);
@@ -58,6 +51,4 @@ int main()
 	pthread_join(main_thread, NULL);
 	pthread_join(add_thread_1, NULL);
 	pthread_join(add_thread_2, NULL);
-
-	pthread_mutex_destroy(&mutex);
 }
