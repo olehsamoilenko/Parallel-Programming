@@ -5,9 +5,10 @@
 #include <unistd.h>
 #include <string.h> 
 #include <arpa/inet.h>
+#include <time.h>
 
 #define PORT 8080
-#define BUF_SIZE 1024
+#define BUF_SIZE 1000000
    
 int main(int argc, char const *argv[]) 
 { 
@@ -36,15 +37,26 @@ int main(int argc, char const *argv[])
     	}
 	
 	char *hello = "hello from client";
-	while (1)
+	int counter = -1;
+	long sum = 0;
+	char *buffer = malloc(sizeof(char) * BUF_SIZE);
+	while (++counter < 100)
 	{
-		sleep(1);
+		//sleep(1);
     		send(socket_id, hello, strlen(hello), 0);
     		printf("Message sent to server\n");
-		char buffer[1024] = {0};
-    		read(socket_id, buffer, BUF_SIZE); 
-    		printf("Got from server: %s\n",buffer);
+		//static char *buffer = malloc(sizeof(char) * BUF_SIZE);
+		clock_t begin = clock();
+    		read(socket_id, buffer, BUF_SIZE - 1); 
+		clock_t end = clock();
+		double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+		double speed = BUF_SIZE / time_spent;
+		sum += speed;
+    		printf("(time = %f, symbols = %d, speed = %ld)\n", time_spent,
+			BUF_SIZE, (long)((double)BUF_SIZE / time_spent));
 	}
+	printf("AVG: %f\n", (double)sum / 10000);
+
     	
 	return (0); 
 }

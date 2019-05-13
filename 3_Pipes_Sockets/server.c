@@ -6,7 +6,7 @@
 #include <string.h> 
 
 #define PORT 8080
-#define BUF_SIZE 1024
+#define BUF_SIZE 1000000
 
 int main(void) 
 { 
@@ -52,13 +52,18 @@ int main(void)
         	exit(EXIT_FAILURE); 
     	}
 	
-	char *responce = "responce from server";
-	while (1)
+	char *responce = malloc(sizeof(char) * BUF_SIZE);
+	char *buffer = malloc(sizeof(char) * BUF_SIZE);
+	int i = -1;
+	while (++i < BUF_SIZE)
+		responce[i] = '0';
+	int counter = -1;
+	while (++counter < 100)
 	{	
-		char buffer[BUF_SIZE] = {0};
-    		read(new_socket, buffer, 1024);
+		//char *buffer = malloc(sizeof(char) * BUF_SIZE);
+    		read(new_socket, buffer, BUF_SIZE);
     		printf("Got from client: %s\n", buffer);	
-		send(new_socket, responce, strlen(responce), 0); 
+		send(new_socket, responce, BUF_SIZE, 0); 
     		printf("Responce sent to client\n");
 	}
     

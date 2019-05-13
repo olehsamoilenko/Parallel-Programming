@@ -39,8 +39,6 @@ void	*decrement(void *arg)
 
 int main(void)
 {
-	// doesn't work
-
 	pthread_t thread[10];
 	int i = 0;
 	sem_init(&g_semaphore, false, 1);

@@ -1,0 +1,4 @@
+usage:
+	make
+	terminal 1: ./server
+	terminal 2: ./client
